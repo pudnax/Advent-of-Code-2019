@@ -22,14 +22,16 @@ where
     R: BufRead,
     F: Fn(Vec<usize>) -> Result<(), Error>,
 {
-    for line in &mut input.lines() {
-        let line = line?;
+    let mut line = String::new();
+
+    while input.read_line(&mut line)? > 0 {
         let prog = line
             .split(",")
             .map(|x| x.trim().parse::<usize>().unwrap())
             .collect::<Vec<_>>();
 
         func(prog)?;
+        line.clear();
     }
 
     Ok(())
