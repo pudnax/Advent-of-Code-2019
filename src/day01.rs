@@ -5,6 +5,16 @@ pub fn run<R>(input: R) -> Result<(), Error>
 where
     R: io::BufRead,
 {
+    let (answer1, answer2) = task(input)?;
+    println!("{}", answer1);
+    println!("{}", answer2);
+    Ok(())
+}
+
+pub fn task<R>(input: R) -> Result<(usize, usize), Error>
+where
+    R: io::BufRead,
+{
     let mut res1 = 0;
     let mut res2 = 0;
 
@@ -15,9 +25,7 @@ where
         res2 += part_two(n);
     }
 
-    println!("{}", res1);
-    println!("{}", res2);
-    Ok(())
+    Ok((res1, res2))
 }
 
 fn part_one(n: usize) -> usize {
@@ -36,5 +44,28 @@ fn part_two(mut n: usize) -> usize {
         };
         total += m;
         n = m;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_01() {
+        let test_cases = &[
+            ("12", 2, 2),
+            ("14", 2, 2),
+            ("1969", 654, 966),
+            ("100756", 33583, 50346),
+        ];
+
+        for (input, expected1, expected2) in test_cases {
+            let reader = io::BufReader::new(input.as_bytes());
+            let (actual1, actual2) = task(reader).unwrap();
+
+            assert_eq!(*expected1, actual1);
+            assert_eq!(*expected2, actual2);
+        }
     }
 }
