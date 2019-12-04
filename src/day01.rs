@@ -1,37 +1,22 @@
 use crate::error::Error;
-use std::io::BufRead;
+use std::io;
 
-pub fn run<R>(mut input: R) -> Result<(), Error>
+pub fn run<R>(input: R) -> Result<(), Error>
 where
-    R: BufRead,
+    R: io::BufRead,
 {
-    let mut content = Vec::new();
-    input.read_to_end(&mut content)?;
+    let mut res1 = 0;
+    let mut res2 = 0;
 
-    let mut reader = std::io::BufReader::new(&content[..]);
-    run_part(&mut reader, part_one)?;
-
-    let mut reader = std::io::BufReader::new(&content[..]);
-    run_part(&mut reader, part_two)?;
-    Ok(())
-}
-
-pub fn run_part<F, R>(input: &mut R, func: F) -> Result<(), Error>
-where
-    R: BufRead,
-    F: Fn(usize) -> usize,
-{
-    let mut res = 0;
-
-    for line in &mut input.lines() {
+    for line in input.lines() {
         let n = line?.parse::<usize>()?;
 
-        let fuel = func(n);
-
-        res += fuel;
+        res1 += part_one(n);
+        res2 += part_two(n);
     }
 
-    println!("{}", res);
+    println!("{}", res1);
+    println!("{}", res2);
     Ok(())
 }
 

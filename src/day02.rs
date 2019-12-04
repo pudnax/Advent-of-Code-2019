@@ -51,7 +51,7 @@ fn part_one(mut prog: Vec<usize>) -> Result<(), Error> {
     Ok(())
 }
 
-fn part_two(mut prog: Vec<usize>) -> Result<(), Error> {
+fn part_two(prog: Vec<usize>) -> Result<(), Error> {
     let run = |ops: &mut [usize], a: usize, b: usize| {
         ops[1..=2].copy_from_slice(&[a, b]);
 
