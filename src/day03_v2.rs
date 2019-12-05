@@ -134,10 +134,10 @@ impl Add<Instruction> for Point {
             },
             Direction::D => Point {
                 x: self.x,
-                y: self.y - rhs.dist as i64,
+                y: self.y + -(rhs.dist as i64),
             },
             Direction::L => Point {
-                x: self.x - rhs.dist as i64,
+                x: self.x + -(rhs.dist as i64),
                 y: self.y,
             },
             Direction::R => Point {
