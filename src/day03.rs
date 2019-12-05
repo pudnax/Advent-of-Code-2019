@@ -13,7 +13,7 @@ pub fn run<R>(input: R) -> Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let mut state: State = HashMap::new();
+    let mut state: State = HashMap::with_capacity(1024 * 1024);
 
     let mut id = 0;
 
