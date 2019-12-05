@@ -1,31 +1,29 @@
-use crate::error::Error;
 use std::io;
 
-pub fn run<R>(input: R) -> Result<(), Error>
+use crate::error::Error;
+
+pub fn run<R>(mut input: R) -> Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let (answer1, answer2) = task(input)?;
-    println!("{}", answer1);
-    println!("{}", answer2);
-    Ok(())
-}
+    let mut buffer = String::new();
+    let mut total1 = 0;
+    let mut total2 = 0;
 
-pub fn task<R>(input: R) -> Result<(usize, usize), Error>
-where
-    R: io::BufRead,
-{
-    let mut res1 = 0;
-    let mut res2 = 0;
+    loop {
+        if input.read_line(&mut buffer)? == 0 {
+            break;
+        }
 
-    for line in input.lines() {
-        let n = line?.parse::<usize>()?;
+        let n = buffer.trim().parse::<usize>()?;
 
-        res1 += part_one(n);
-        res2 += part_two(n);
+        total1 += part_one(n);
+        total2 += part_two(n);
+
+        buffer.clear();
     }
 
-    Ok((res1, res2))
+    Ok((format!("{}", total1), format!("{}", total2)))
 }
 
 fn part_one(n: usize) -> usize {
@@ -54,16 +52,16 @@ mod tests {
     #[test]
     fn test_01() {
         let test_cases = &[
-            ("12", 2, 2),
-            ("14", 2, 2),
-            ("1969", 654, 966),
-            ("100756", 33583, 50346),
+            // (input, expected1, expected2)
+            ("12", "2", "2"),
+            ("14", "2", "2"),
+            ("1969", "654", "966"),
+            ("100756", "33583", "50346"),
         ];
 
         for (input, expected1, expected2) in test_cases {
             let reader = io::BufReader::new(input.as_bytes());
-            let (actual1, actual2) = task(reader).unwrap();
-
+            let (actual1, actual2) = run(reader).unwrap();
             assert_eq!(*expected1, actual1);
             assert_eq!(*expected2, actual2);
         }
