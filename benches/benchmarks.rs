@@ -30,7 +30,7 @@ fn target_03(c: &mut Criterion) {
     c.bench_function("day_03", |b| {
         b.iter(|| {
             let reader = io::BufReader::new(day03.as_bytes());
-            aoc2019::day02::run(reader).unwrap();
+            aoc2019::day03::run(reader).unwrap();
         })
     });
 }
