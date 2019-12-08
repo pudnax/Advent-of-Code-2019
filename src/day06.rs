@@ -139,8 +139,8 @@ fn parse_input<R>(mut reader: R) -> Result<(Graph<usize>, Graph<usize>, Ids), Er
 where
     R: io::BufRead,
 {
-    let mut graph1 = Graph::default();
-    let mut graph2 = Graph::default();
+    let mut directed = Graph::default();
+    let mut undirected = Graph::default();
     let mut buffer = String::new();
     let mut id = 0;
     let mut ids: HashMap<String, usize> = HashMap::new();
@@ -159,17 +159,17 @@ where
         let id_child = *ids.entry(child).or_insert_with(|| id + 1);
         id += 2;
 
-        graph1
+        directed
             .entry(id_parent)
             .or_insert_with(|| Vec::new())
             .push(id_child);
 
-        graph2
+        undirected
             .entry(id_parent)
             .or_insert_with(|| Vec::new())
             .push(id_child);
 
-        graph2
+        undirected
             .entry(id_child)
             .or_insert_with(|| Vec::new())
             .push(id_parent);
@@ -177,5 +177,36 @@ where
         buffer.clear();
     }
 
-    Ok((graph1, graph2, ids))
+    Ok((directed, undirected, ids))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_06() {
+        {
+            // Part 1
+            let input = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L";
+            let reader = io::BufReader::new(input.as_bytes());
+            let (directed, _, ids) = parse_input(reader).unwrap();
+
+            let id_com = ids.get("COM").unwrap();
+            let nconnections = directed.nconnections(id_com);
+            assert_eq!(nconnections, 42);
+        }
+
+        {
+            // Part 2
+            let input = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L\nK)YOU\nI)SAN\n";
+            let reader = io::BufReader::new(input.as_bytes());
+            let (_, undirected, ids) = parse_input(reader).unwrap();
+
+            let id_you = ids.get("YOU").unwrap();
+            let id_san = ids.get("SAN").unwrap();
+            let dist = undirected.shortest_distance(id_you, id_san).unwrap();
+            assert_eq!(dist, 6);
+        }
+    }
 }
