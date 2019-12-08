@@ -25,6 +25,19 @@ where
 #[derive(Debug, Clone, Eq, PartialEq)]
 struct Graph(HashMap<usize, Vec<usize>>);
 
+impl std::ops::Deref for Graph {
+    type Target = HashMap<usize, Vec<usize>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for Graph {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl Graph {
     fn shortest_distance(&self, a: usize, b: usize) -> Option<usize> {
         let mut levels = HashMap::new();
@@ -37,7 +50,7 @@ impl Graph {
         visited.insert(a);
 
         while let Some(ref node) = queue.pop_front() {
-            if let Some(children) = self.0.get(node) {
+            if let Some(children) = self.get(node) {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
@@ -70,7 +83,7 @@ impl Graph {
         visited.insert(start);
 
         while let Some(ref node) = queue.pop_front() {
-            if let Some(children) = self.0.get(node) {
+            if let Some(children) = self.get(node) {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
