@@ -19,7 +19,7 @@ where
     let id_san = *ids.get("SAN").ok_or_else(|| error!("SAN node missing"))?;
     let shortest_distance = graph2
         .shortest_distance(&id_you, &id_san)
-        .ok_or_else(|| error!("Could not fild a path from us to Santa :("))?;
+        .ok_or_else(|| error!("Could not fild a path from us to Santa"))?;
     let answer2 = shortest_distance - 2;
     Ok((nconnections.to_string(), answer2.to_string()))
 }
