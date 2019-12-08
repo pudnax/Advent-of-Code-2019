@@ -2,6 +2,8 @@ use std::io;
 
 use crate::error::Error;
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::hash::Hash;
+use std::iter::{FromIterator, IntoIterator};
 
 type Ids = HashMap<String, usize>;
 
@@ -11,41 +13,72 @@ where
 {
     let (graph1, graph2, ids) = parse_input(input)?;
     let id_com = *ids.get("COM").ok_or_else(|| error!("COM node missing"))?;
-    let nconnections = graph1.nconnections(id_com);
+    let nconnections = graph1.nconnections(&id_com);
 
     let id_you = *ids.get("YOU").ok_or_else(|| error!("YOU node missing"))?;
     let id_san = *ids.get("SAN").ok_or_else(|| error!("SAN node missing"))?;
     let shortest_distance = graph2
-        .shortest_distance(id_you, id_san)
+        .shortest_distance(&id_you, &id_san)
         .ok_or_else(|| error!("Could not fild a path from us to Santa :("))?;
     let answer2 = shortest_distance - 2;
     Ok((nconnections.to_string(), answer2.to_string()))
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-struct Graph(HashMap<usize, Vec<usize>>);
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
+struct Graph<N>(HashMap<N, Vec<N>>)
+where
+    N: Eq + Hash;
 
-impl std::ops::Deref for Graph {
-    type Target = HashMap<usize, Vec<usize>>;
+impl<N> std::ops::Deref for Graph<N>
+where
+    N: Eq + Hash,
+{
+    type Target = HashMap<N, Vec<N>>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl std::ops::DerefMut for Graph {
+impl<N> std::ops::DerefMut for Graph<N>
+where
+    N: Eq + Hash,
+{
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl Graph {
-    fn shortest_distance(&self, a: usize, b: usize) -> Option<usize> {
+impl<N> FromIterator<(N, Vec<N>)> for Graph<N>
+where
+    N: Eq + Hash,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (N, Vec<N>)>,
+    {
+        Graph(HashMap::from_iter(iter))
+    }
+}
+
+impl<N> AsRef<HashMap<N, Vec<N>>> for Graph<N>
+where
+    N: Eq + Hash,
+{
+    fn as_ref(&self) -> &HashMap<N, Vec<N>> {
+        &self.0
+    }
+}
+
+impl<N> Graph<N>
+where
+    N: Eq + Hash,
+{
+    fn shortest_distance(&self, a: &N, b: &N) -> Option<isize> {
         let mut levels = HashMap::new();
         let mut queue = VecDeque::new();
         let mut visited = HashSet::new();
 
         levels.insert(a, 0);
-
         queue.push_back(a);
         visited.insert(a);
 
@@ -54,14 +87,14 @@ impl Graph {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
-                        levels.insert(*child, level);
 
-                        if child == &b {
+                        if child == b {
                             return Some(level);
                         }
 
-                        visited.insert(*child);
-                        queue.push_back(*child);
+                        levels.insert(child, level);
+                        visited.insert(child);
+                        queue.push_back(child);
                     }
                 }
             }
@@ -70,7 +103,7 @@ impl Graph {
         None
     }
 
-    fn nconnections(&self, start: usize) -> usize {
+    fn nconnections(&self, start: &N) -> usize {
         let mut levels = HashMap::new();
         let mut queue = VecDeque::new();
         let mut visited = HashSet::new();
@@ -87,12 +120,12 @@ impl Graph {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
-                        levels.insert(*child, level);
 
                         nconnections += level;
 
-                        visited.insert(*child);
-                        queue.push_back(*child);
+                        levels.insert(child, level);
+                        visited.insert(child);
+                        queue.push_back(child);
                     }
                 }
             }
@@ -102,12 +135,12 @@ impl Graph {
     }
 }
 
-fn parse_input<R>(mut reader: R) -> Result<(Graph, Graph, Ids), Error>
+fn parse_input<R>(mut reader: R) -> Result<(Graph<usize>, Graph<usize>, Ids), Error>
 where
     R: io::BufRead,
 {
-    let mut graph1 = HashMap::new();
-    let mut graph2 = HashMap::new();
+    let mut graph1 = Graph::default();
+    let mut graph2 = Graph::default();
     let mut buffer = String::new();
     let mut id = 0;
     let mut ids: HashMap<String, usize> = HashMap::new();
@@ -144,5 +177,5 @@ where
         buffer.clear();
     }
 
-    Ok((Graph(graph1), Graph(graph2), ids))
+    Ok((graph1, graph2, ids))
 }
