@@ -15,7 +15,7 @@ where
     ));
     for noun in 0..=99 {
         for verb in 0..=99 {
-            if computer.execute(None, Some((noun, verb)))? == 19690720 {
+            if computer.execute(None, Some((noun, verb)))? == 19_690_720 {
                 answer2 = Ok(100 * noun + verb);
             }
         }

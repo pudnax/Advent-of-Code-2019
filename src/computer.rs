@@ -22,7 +22,7 @@ impl Computer {
         rom_reader.read_to_string(&mut buffer)?;
         let rom = buffer
             .trim()
-            .split(",")
+            .split(',')
             .map(|s| Ok(s.parse::<i64>()?))
             .collect::<Result<Vec<_>, Error>>()?;
         Ok(Self {
@@ -194,7 +194,7 @@ impl Iterator for Modes {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.0 {
-            0 => return Some(Ok(Mode::Pointer)),
+            0 => Some(Ok(Mode::Pointer)),
             _ => {
                 let mode = match Mode::try_from(self.0 % 10) {
                     Ok(mode) => mode,
@@ -322,7 +322,7 @@ mod tests {
             let mut computer = Computer::new(reader).unwrap();
             let _ = computer.execute(None, Some((*noun, *verb))).unwrap();
             let expected_ram = expected_ram
-                .split(",")
+                .split(',')
                 .map(|s| s.trim().parse::<i64>().unwrap())
                 .collect::<Vec<_>>();
             assert_eq!(computer.ram(), &expected_ram[..]);
