@@ -70,7 +70,7 @@ where
         let mut origin = Point { x: 0, y: 0 };
         let mut steps = 0;
 
-        for s in buffer.trim().split(",").map(|s| s.trim()) {
+        for s in buffer.trim().split(',').map(|s| s.trim()) {
             let instruction = {
                 let bytes = s.as_bytes();
                 let c = bytes[0] as char;
@@ -133,10 +133,10 @@ impl Add<Instruction> for Point {
             },
             Direction::D => Point {
                 x: self.x,
-                y: self.y - rhs.dist as i64,
+                y: self.y + -(rhs.dist as i64),
             },
             Direction::L => Point {
-                x: self.x - rhs.dist as i64,
+                x: self.x + -(rhs.dist as i64),
                 y: self.y,
             },
             Direction::R => Point {
@@ -185,13 +185,11 @@ impl Segment {
                 match other.kind() {
                     SegmentKind::Vertical { x, y } => {
                         let (xv, yv) = (x, y);
-                        if (xh.0..=xh.1).contains(&xv) {
-                            if (yv.0..=yv.1).contains(&yh) {
-                                let point = Point { x: xv, y: yh };
-                                if point != ORIGIN {
-                                    let steps = self.steps_to(point) + other.steps_to(point);
-                                    return Some(Intersection { point, steps });
-                                }
+                        if (xh.0..=xh.1).contains(&xv) && (yv.0..=yv.1).contains(&yh) {
+                            let point = Point { x: xv, y: yh };
+                            if point != ORIGIN {
+                                let steps = self.steps_to(point) + other.steps_to(point);
+                                return Some(Intersection { point, steps });
                             }
                         }
                         None
@@ -204,13 +202,11 @@ impl Segment {
                 match other.kind() {
                     SegmentKind::Horizontal { x, y } => {
                         let (xh, yh) = (x, y);
-                        if (xh.0..=xh.1).contains(&xv) {
-                            if (yv.0..=yv.1).contains(&yh) {
-                                let point = Point { x: xv, y: yh };
-                                if point != ORIGIN {
-                                    let steps = self.steps_to(point) + other.steps_to(point);
-                                    return Some(Intersection { point, steps });
-                                }
+                        if (xh.0..=xh.1).contains(&xv) && (yv.0..=yv.1).contains(&yh) {
+                            let point = Point { x: xv, y: yh };
+                            if point != ORIGIN {
+                                let steps = self.steps_to(point) + other.steps_to(point);
+                                return Some(Intersection { point, steps });
                             }
                         }
                         None

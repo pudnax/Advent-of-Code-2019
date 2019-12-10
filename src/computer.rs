@@ -18,7 +18,7 @@ impl Rom {
         reader.read_to_string(&mut buf)?;
         let vec = buf
             .trim()
-            .split(",")
+            .split(',')
             .map(|s| s.trim().parse::<i64>().map_err(Error::from))
             .collect::<Result<Vec<_>, Error>>()?;
         Ok(Rom(vec))
@@ -112,7 +112,7 @@ impl Computer {
     {
         // reset state
         self.pc = 0;
-        self.ram = rom.as_ref().iter().cloned().collect();
+        self.ram = rom.as_ref().to_vec();
 
         // set inputs
         if let Some((noun, verb)) = noun_and_verb {
@@ -258,7 +258,7 @@ impl Iterator for Modes {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.0 {
-            0 => return Some(Ok(Mode::Pointer)),
+            0 => Some(Ok(Mode::Pointer)),
             _ => {
                 let mode = match Mode::try_from(self.0 % 10) {
                     Ok(mode) => mode,
@@ -387,7 +387,7 @@ mod tests {
             let mut computer = Computer::new(Channel::default(), Channel::default());
             let _ = computer.execute(&rom, Some((*noun, *verb))).unwrap();
             let expected_ram = expected_ram
-                .split(",")
+                .split(',')
                 .map(|s| s.trim().parse::<i64>().unwrap())
                 .collect::<Vec<_>>();
             assert_eq!(computer.ram(), &expected_ram[..]);

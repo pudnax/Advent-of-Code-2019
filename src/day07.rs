@@ -19,7 +19,7 @@ fn fact(mut n: usize) -> Result<usize, Error> {
         if (n - 1) == 0 {
             break;
         } else {
-            n = n - 1;
+            n -= 1;
         }
     }
     Ok(answer)

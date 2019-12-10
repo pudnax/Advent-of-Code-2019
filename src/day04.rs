@@ -79,7 +79,7 @@ where
     let mut s = String::new();
     reader.read_to_string(&mut s)?;
 
-    let mut iter = s.split("-");
+    let mut iter = s.split('-');
     let low = iter.next().map(parse).ok_or_else(error)??;
     let high = iter.next().map(parse).ok_or_else(error)??;
 
@@ -123,12 +123,12 @@ mod tests {
     #[test]
     fn test_04() {
         let test_cases = &[
-            (111111, true, false),
-            (223450, false, false),
-            (123789, false, false),
-            (112233, true, true),
-            (123444, true, false),
-            (111122, true, true),
+            (111_111, true, false),
+            (223_450, false, false),
+            (123_789, false, false),
+            (112_233, true, true),
+            (123_444, true, false),
+            (111_122, true, true),
         ];
 
         for (n, expected1, expected2) in test_cases {
