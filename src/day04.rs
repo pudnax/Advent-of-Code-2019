@@ -1,7 +1,6 @@
 use std::io;
 
 use crate::error::Error;
-use crate::{bail, error};
 
 pub fn run<R>(input: R) -> Result<(String, String), Error>
 where
@@ -11,11 +10,11 @@ where
 
     let (mut answer1, mut answer2) = (0, 0);
     for n in low..=high {
-        let (part1, part2) = is_valid(n)?;
-        if part1 {
+        let is_valid = is_valid(n)?;
+        if is_valid.0 {
             answer1 += 1;
         }
-        if part2 {
+        if is_valid.1 {
             answer2 += 1;
         }
     }
@@ -33,6 +32,7 @@ fn is_valid(n: usize) -> Result<(bool, bool), Error> {
         if digit < min {
             return Ok((false, false));
         }
+        min = digit;
 
         match previous_digits {
             PreviousDigits::None => {
@@ -64,8 +64,6 @@ fn is_valid(n: usize) -> Result<(bool, bool), Error> {
                 }
             }
         }
-
-        min = digit;
     }
 
     Ok(is_valid)
@@ -81,7 +79,7 @@ where
     let mut s = String::new();
     reader.read_to_string(&mut s)?;
 
-    let mut iter = s.split('-');
+    let mut iter = s.split("-");
     let low = iter.next().map(parse).ok_or_else(error)??;
     let high = iter.next().map(parse).ok_or_else(error)??;
 
@@ -96,7 +94,6 @@ fn parse_digits(mut n: usize) -> Result<[u8; 6], Error> {
     if n < 100_000 || n > 999_999 {
         bail!("Input must be a 6 digit number.")
     }
-
     let mut output = [0u8; 6];
     let mut i = 5;
     loop {
@@ -105,7 +102,7 @@ fn parse_digits(mut n: usize) -> Result<[u8; 6], Error> {
         if i == 0 {
             break;
         }
-        i -= 1
+        i -= 1;
     }
     Ok(output)
 }
@@ -121,15 +118,17 @@ enum PreviousDigits {
 mod tests {
     use super::*;
 
+    use crate::utils;
+
     #[test]
     fn test_04() {
         let test_cases = &[
-            (111_111, true, false),
-            (223_450, false, false),
-            (123_789, false, false),
-            (112_233, true, true),
-            (123_444, true, false),
-            (111_122, true, true),
+            (111111, true, false),
+            (223450, false, false),
+            (123789, false, false),
+            (112233, true, true),
+            (123444, true, false),
+            (111122, true, true),
         ];
 
         for (n, expected1, expected2) in test_cases {
@@ -137,5 +136,7 @@ mod tests {
             assert_eq!(actual1, *expected1);
             assert_eq!(actual2, *expected2);
         }
+
+        utils::tests::test_full_problem(4, run, "1929", "1306");
     }
 }

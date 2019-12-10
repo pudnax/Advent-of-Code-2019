@@ -1,9 +1,10 @@
-use std::io;
-
-use crate::error::Error;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::hash::Hash;
-use std::iter::{FromIterator, IntoIterator};
+use std::io;
+use std::iter::FromIterator;
+use std::ops::{Deref, DerefMut};
+
+use crate::error::Error;
 
 type Ids = HashMap<String, usize>;
 
@@ -11,35 +12,37 @@ pub fn run<R>(input: R) -> Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let (graph1, graph2, ids) = parse_input(input)?;
-    let id_com = *ids.get("COM").ok_or_else(|| error!("COM node missing"))?;
-    let nconnections = graph1.nconnections(&id_com);
+    let (directed, undirected, ids) = parse_input(input)?;
+    let id_com = *ids.get("COM").ok_or_else(|| error!("COM node missing!"))?;
+    let nconnections = directed.nconnections(&id_com);
 
-    let id_you = *ids.get("YOU").ok_or_else(|| error!("YOU node missing"))?;
-    let id_san = *ids.get("SAN").ok_or_else(|| error!("SAN node missing"))?;
-    let shortest_distance = graph2
+    let id_you = *ids.get("YOU").ok_or_else(|| error!("YOU node missing!"))?;
+    let id_san = *ids.get("SAN").ok_or_else(|| error!("SAN node missing!"))?;
+    let shortest_distance = undirected
         .shortest_distance(&id_you, &id_san)
-        .ok_or_else(|| error!("Could not fild a path from us to Santa"))?;
+        .ok_or_else(|| error!("Could not find a path from us to Santa :( :("))?;
     let answer2 = shortest_distance - 2;
+
     Ok((nconnections.to_string(), answer2.to_string()))
 }
 
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 struct Graph<N>(HashMap<N, Vec<N>>)
 where
     N: Eq + Hash;
 
-impl<N> std::ops::Deref for Graph<N>
+impl<N> Deref for Graph<N>
 where
     N: Eq + Hash,
 {
     type Target = HashMap<N, Vec<N>>;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<N> std::ops::DerefMut for Graph<N>
+impl<N> DerefMut for Graph<N>
 where
     N: Eq + Hash,
 {
@@ -60,70 +63,59 @@ where
     }
 }
 
-impl<N> AsRef<HashMap<N, Vec<N>>> for Graph<N>
-where
-    N: Eq + Hash,
-{
-    fn as_ref(&self) -> &HashMap<N, Vec<N>> {
-        &self.0
-    }
-}
-
 impl<N> Graph<N>
 where
     N: Eq + Hash,
 {
-    fn shortest_distance(&self, a: &N, b: &N) -> Option<isize> {
-        let mut levels = HashMap::new();
-        let mut queue = VecDeque::new();
-        let mut visited = HashSet::new();
+    fn shortest_distance(&self, a: &N, b: &N) -> Option<usize> {
+        let mut levels: HashMap<&N, usize> = HashMap::new();
+        let mut queue: VecDeque<&N> = VecDeque::new();
+        let mut visited: HashSet<&N> = HashSet::new();
 
         levels.insert(a, 0);
         queue.push_back(a);
         visited.insert(a);
 
         while let Some(ref node) = queue.pop_front() {
-            if let Some(children) = self.get(node) {
+            if let Some(children) = self.0.get(node) {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
-
                         if child == b {
                             return Some(level);
                         }
 
                         levels.insert(child, level);
+
                         visited.insert(child);
                         queue.push_back(child);
                     }
                 }
             }
         }
-
         None
     }
 
     fn nconnections(&self, start: &N) -> usize {
+        let mut nconnections = 0;
+
         let mut levels = HashMap::new();
         let mut queue = VecDeque::new();
         let mut visited = HashSet::new();
 
-        let mut nconnections = 0;
-
         levels.insert(start, 0);
-
         queue.push_back(start);
         visited.insert(start);
 
         while let Some(ref node) = queue.pop_front() {
-            if let Some(children) = self.get(node) {
+            if let Some(children) = self.0.get(node) {
                 for child in children {
                     if !visited.contains(child) {
                         let level = levels.get(node).unwrap() + 1;
+                        levels.insert(child, level);
 
                         nconnections += level;
 
-                        levels.insert(child, level);
                         visited.insert(child);
                         queue.push_back(child);
                     }
@@ -141,16 +133,20 @@ where
 {
     let mut directed = Graph::default();
     let mut undirected = Graph::default();
+
     let mut buffer = String::new();
     let mut id = 0;
     let mut ids: HashMap<String, usize> = HashMap::new();
-    while reader.read_line(&mut buffer)? > 0 {
+    loop {
+        if reader.read_line(&mut buffer)? == 0 {
+            break;
+        }
+
         let line = buffer.trim();
-        let mut iter = line.split(')').map(|s| s.trim().to_string());
+        let mut iter = line.split(")").map(|s| s.trim().to_string());
         let parent = iter
             .next()
             .ok_or_else(|| error!("Unable to parse input line {}", line))?;
-
         let child = iter
             .next()
             .ok_or_else(|| error!("Unable to parse input line {}", line))?;
@@ -161,17 +157,16 @@ where
 
         directed
             .entry(id_parent)
-            .or_insert_with(Vec::new)
+            .or_insert_with(|| Vec::new())
             .push(id_child);
 
         undirected
             .entry(id_parent)
-            .or_insert_with(Vec::new)
+            .or_insert_with(|| Vec::new())
             .push(id_child);
-
         undirected
             .entry(id_child)
-            .or_insert_with(Vec::new)
+            .or_insert_with(|| Vec::new())
             .push(id_parent);
 
         buffer.clear();
@@ -184,10 +179,12 @@ where
 mod tests {
     use super::*;
 
+    use crate::utils;
+
     #[test]
     fn test_06() {
         {
-            // Part 1
+            // Part 2
             let input = "COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L";
             let reader = io::BufReader::new(input.as_bytes());
             let (directed, _, ids) = parse_input(reader).unwrap();
@@ -208,5 +205,7 @@ mod tests {
             let dist = undirected.shortest_distance(id_you, id_san).unwrap();
             assert_eq!(dist, 6);
         }
+
+        utils::tests::test_full_problem(6, run, "241064", "418");
     }
 }

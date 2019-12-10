@@ -5,52 +5,56 @@ mod computer;
 pub mod day01;
 pub mod day02;
 pub mod day03;
-pub mod day03_v2;
 pub mod day04;
 pub mod day05;
 pub mod day06;
+pub mod day07;
 pub mod day08;
+mod utils;
 
 pub use self::error::Error;
 pub use self::reader::Reader;
 
 mod error {
-    use std::{fmt, io};
+    use std::fmt;
+    use std::io;
 
     #[derive(Debug)]
     pub enum Error {
         Custom(String),
         Io(io::Error),
-        Parse(std::num::ParseIntError),
+        ParseInt(std::num::ParseIntError),
     }
 
-    impl fmt::Display for Error {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                Self::Custom(s) => write!(f, "{}", s),
-                Self::Io(s) => write!(f, "{}", s),
-                Self::Parse(s) => write!(f, "{}", s),
-            }
-        }
-    }
-
-    impl From<std::io::Error> for Error {
-        fn from(e: std::io::Error) -> Self {
+    impl From<io::Error> for Error {
+        fn from(e: io::Error) -> Self {
             Self::Io(e)
         }
     }
 
     impl From<std::num::ParseIntError> for Error {
         fn from(e: std::num::ParseIntError) -> Self {
-            Self::Parse(e)
+            Self::ParseInt(e)
+        }
+    }
+
+    impl fmt::Display for Error {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            match self {
+                Self::Custom(s) => write!(f, "{}", s),
+                Self::Io(e) => write!(f, "{}", e),
+                Self::ParseInt(e) => write!(f, "{}", e),
+            }
         }
     }
 
     impl std::error::Error for Error {}
 }
+
 mod reader {
     use std::fs;
     use std::io;
+
     pub enum Reader<'a> {
         File(io::BufReader<fs::File>),
         Stdin(io::StdinLock<'a>),
@@ -59,7 +63,7 @@ mod reader {
     impl<'a> io::Read for Reader<'a> {
         fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
             match self {
-                Self::File(file) => file.read(buf),
+                Self::File(reader) => reader.read(buf),
                 Self::Stdin(guard) => guard.read(buf),
             }
         }
@@ -72,6 +76,7 @@ mod reader {
                 Self::Stdin(guard) => guard.fill_buf(),
             }
         }
+
         fn consume(&mut self, amt: usize) {
             match self {
                 Self::File(reader) => reader.consume(amt),
