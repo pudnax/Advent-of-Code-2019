@@ -18,15 +18,15 @@ where
         match buffer
             .chunks(ROWS * COLS)
             .fold((std::usize::MAX, None), |mut state, layer| {
-                let nzeros = layer.iter().filter(|&&b| b == 0).count();
+                let nzeros = bytecount::count(layer, 0);
                 if nzeros < state.0 {
                     state = (nzeros, Some(layer));
                 }
                 state
             }) {
             (_, Some(layer)) => {
-                let nones = layer.iter().filter(|&&b| b == 1).count();
-                let ntwos = layer.iter().filter(|&&b| b == 2).count();
+                let nones = bytecount::count(layer, 1);
+                let ntwos = bytecount::count(layer, 2);
                 nones * ntwos
             }
             (_, None) => bail!("Can't count layers"),
@@ -57,5 +57,5 @@ where
         answer2.push('\n');
     }
 
-    Ok((answer1.to_string(), answer2.to_string()))
+    Ok((answer1.to_string(), answer2))
 }

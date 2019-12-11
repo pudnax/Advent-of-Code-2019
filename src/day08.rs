@@ -17,11 +17,11 @@ fn find_uncorrupted(arr: &[&[u8]]) -> Result<usize, Error> {
     let min_index = arr
         .iter()
         .enumerate()
-        .min_by_key(|(_, &arr)| arr.iter().filter(|&&x| x == 0).count())
+        .min_by_key(|(_, &arr)| bytecount::count(arr, 0))
         .ok_or_else(|| error!("Unable find array with 0"))?
         .0;
-    let ones = arr[min_index].iter().filter(|&&x| x == 1).count();
-    let twos = arr[min_index].iter().filter(|&&x| x == 2).count();
+    let ones = bytecount::count(arr[min_index], 1);
+    let twos = bytecount::count(arr[min_index], 2);
 
     Ok(ones * twos)
 }
