@@ -10,6 +10,7 @@ pub mod day05;
 pub mod day06;
 pub mod day07;
 pub mod day08;
+pub mod day08_v2;
 mod utils;
 
 pub use self::error::Error;
@@ -23,7 +24,14 @@ mod error {
     pub enum Error {
         Custom(String),
         Io(io::Error),
+        Fmt(std::fmt::Error),
         ParseInt(std::num::ParseIntError),
+    }
+
+    impl From<std::fmt::Error> for Error {
+        fn from(e: std::fmt::Error) -> Self {
+            Self::Fmt(e)
+        }
     }
 
     impl From<io::Error> for Error {
@@ -44,6 +52,7 @@ mod error {
                 Self::Custom(s) => write!(f, "{}", s),
                 Self::Io(e) => write!(f, "{}", e),
                 Self::ParseInt(e) => write!(f, "{}", e),
+                Self::Fmt(e) => write!(f, "{}", e),
             }
         }
     }

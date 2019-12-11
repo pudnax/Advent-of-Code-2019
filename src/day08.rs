@@ -8,8 +8,8 @@ where
 {
     let image = parse_input(input)?;
     let image = construct_matrix(&image, 25, 6)?;
-    let answer1 = find_uncorrupted(&image)?;
-    let answer2 = decode(image);
+    let answer1 = find_uncorrupted(&image.0)?;
+    let answer2 = decode(image.0, image.1, image.2);
     Ok((answer1.to_string(), answer2.to_string()))
 }
 
@@ -27,26 +27,34 @@ fn find_uncorrupted(arr: &[&[u8]]) -> Result<usize, Error> {
 }
 
 #[derive(Debug)]
-struct Image(Vec<u8>);
+struct Image((Vec<u8>, usize, usize));
 
 impl std::ops::Deref for Image {
     type Target = Vec<u8>;
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &(self.0).0
     }
 }
 
 impl std::fmt::Display for Image {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut buff = String::new();
-        for i in 0..self.len() {
-            buff.push((self[i] + 48) as char);
+        let mut iter = (self.0).0.iter();
+        for _row in 0..(self.0).2 {
+            for _col in 0..(self.0).1 {
+                match iter.next() {
+                    Some(0) => buff.push('\u{2585}'),
+                    Some(1) => buff.push(' '),
+                    Some(_) | None => {}
+                }
+            }
+            buff.push('\n');
         }
         write!(f, "{}", buff)
     }
 }
 
-fn decode(arr: Vec<&[u8]>) -> Image {
+fn decode(arr: Vec<&[u8]>, w: usize, h: usize) -> Image {
     let size = arr[0].len();
     let mut buffer = vec![(0, true); size];
 
@@ -69,31 +77,25 @@ fn decode(arr: Vec<&[u8]>) -> Image {
         })
     });
 
-    Image(buffer.iter().map(|x| x.0).collect::<Vec<_>>())
+    Image((buffer.iter().map(|x| x.0).collect::<Vec<_>>(), w, h))
 }
 
-fn construct_matrix(arr: &[u8], w: usize, h: usize) -> Result<Vec<&[u8]>, Error> {
+fn construct_matrix(arr: &[u8], w: usize, h: usize) -> Result<(Vec<&[u8]>, usize, usize), Error> {
     if arr.len() % (w * h) != 0 {
         bail!("Uncorrect array size");
     }
 
-    Ok(arr.chunks(w * h).collect::<Vec<_>>())
+    Ok((arr.chunks(w * h).collect::<Vec<_>>(), w, h))
 }
 
-fn parse_input<R>(mut input: R) -> Result<Vec<u8>, Error>
+fn parse_input<R>(mut reader: R) -> Result<Vec<u8>, Error>
 where
     R: io::BufRead,
 {
-    let mut buffer = String::new();
-    let mut acc = Vec::new();
-    while input.read_line(&mut buffer)? > 0 {
-        acc = buffer
-            .trim()
-            .chars()
-            .map(|x| x as u8 - 48)
-            .collect::<Vec<_>>();
-        buffer.clear();
-    }
+    let mut buffer = Vec::new();
+    reader.read_to_end(&mut buffer)?;
+    buffer.pop();
+    buffer.iter_mut().for_each(|b| *b -= 48);
 
-    Ok(acc)
+    Ok(buffer)
 }
