@@ -9,7 +9,11 @@ where
     let mut system = parse_input(reader)?;
 
     system.wait(100);
-
+    // println!("{:?}", system);
+    // for _ in 0..5 {
+    //     println!("{:?}", system);
+    //     system.time_step();
+    // }
     let answer1 = system.energy();
     Ok((answer1.to_string(), "answer2".to_string()))
 }
@@ -40,7 +44,6 @@ where
     Ok(moons.into())
 }
 
-#[derive(Debug)]
 struct PlanetSystem {
     planets: Vec<Moon>,
 }
@@ -50,13 +53,31 @@ impl PlanetSystem {
         PlanetSystem { planets: moons }
     }
 
-    fn apply_gravity(&mut self) {}
+    fn apply_gravity(&mut self) {
+        for i in 1..self.planets.len() {
+            for j in 0..i - 1 {
+                for k in 0..self.planets[i].pos.len() {
+                    match self.planets[i].pos[k].cmp(&self.planets[j].pos[k]) {
+                        std::cmp::Ordering::Greater => {
+                            self.planets[i].vel[k] += -1;
+                            self.planets[j].vel[k] += 1;
+                        }
+                        std::cmp::Ordering::Less => {
+                            self.planets[i].vel[k] += 1;
+                            self.planets[j].vel[k] += -1;
+                        }
+                        std::cmp::Ordering::Equal => {}
+                    }
+                }
+            }
+        }
+    }
 
     fn time_step(&mut self) {
         self.apply_gravity();
         for planet in &mut self.planets {
-            for k in 0..3 {
-                planet.pos[k] = planet.vel[k];
+            for k in 0..planet.pos.len() {
+                planet.pos[k] += planet.vel[k];
             }
         }
     }
@@ -101,7 +122,7 @@ impl Moon {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 struct Vec3d([i64; 3]);
 
 impl std::iter::FromIterator<i64> for Vec3d {
@@ -141,6 +162,18 @@ impl std::ops::Deref for Vec3d {
 impl std::ops::DerefMut for Vec3d {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+impl std::fmt::Debug for Vec3d {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{} {} {}]", self[0], self[1], self[2])
+    }
+}
+
+impl std::fmt::Debug for PlanetSystem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "planets: {:?}", self.planets)
     }
 }
 
