@@ -10,10 +10,7 @@ where
 
     system.wait(1000);
     println!("{:?}", system);
-    // for _ in 0..5 {
-    //     println!("{:?}", system);
-    //     system.time_step();
-    // }
+
     let answer1 = system.energy();
     Ok((answer1.to_string(), "answer2".to_string()))
 }
@@ -186,6 +183,6 @@ mod tests {
 
     #[test]
     fn test_12() {
-        utils::tests::test_full_problem(121, run, "1940", "answer2");
+        utils::tests::test_full_problem(121, run, "14645", "answer2");
     }
 }
