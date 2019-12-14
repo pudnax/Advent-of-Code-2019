@@ -60,7 +60,7 @@ pub(crate) mod tests {
     where
         F: Fn(io::BufReader<fs::File>) -> Result<(String, String), Error>,
     {
-        let path = format!("data/{:02}.txt", day);
+        let path = format!("data/day{:02}", day);
         let file = std::fs::File::open(path).unwrap();
         let reader = std::io::BufReader::new(file);
         let (actual1, actual2) = run_func(reader).unwrap();

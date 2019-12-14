@@ -6,9 +6,12 @@ pub fn run<R>(reader: R) -> Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let system = parse_input(reader)?;
-    println!("{:?}", system);
-    Ok(("answer1".to_string(), "answer2".to_string()))
+    let mut system = parse_input(reader)?;
+
+    system.wait(100);
+
+    let answer1 = system.energy();
+    Ok((answer1.to_string(), "answer2".to_string()))
 }
 
 fn parse_input<R>(mut reader: R) -> Result<PlanetSystem, Error>
@@ -40,19 +43,35 @@ where
 #[derive(Debug)]
 struct PlanetSystem {
     planets: Vec<Moon>,
-    gravity: Vec<Vec3d>,
 }
 
 impl PlanetSystem {
     fn new(moons: Vec<Moon>) -> Self {
-        let size = moons.len();
-        PlanetSystem {
-            planets: moons,
-            gravity: vec![[0; 3].into(); size],
+        PlanetSystem { planets: moons }
+    }
+
+    fn apply_gravity(&mut self) {}
+
+    fn time_step(&mut self) {
+        self.apply_gravity();
+        for planet in &mut self.planets {
+            for k in 0..3 {
+                planet.pos[k] = planet.vel[k];
+            }
         }
     }
 
-    fn time_step(&mut self) {}
+    fn wait(&mut self, t: usize) {
+        for _ in 0..t {
+            self.time_step();
+        }
+    }
+
+    fn energy(&self) -> i64 {
+        self.planets
+            .iter()
+            .fold(0, |acc, planet| acc + planet.energy())
+    }
 }
 
 impl From<Vec<Moon>> for PlanetSystem {
@@ -76,32 +95,20 @@ impl Moon {
     }
 
     fn energy(&self) -> i64 {
-        self.pos
-            .iter()
-            .zip(self.vel.iter())
-            .fold(0, |energy, (pos, vel)| energy + pos + vel)
+        let kin_energy = self.pos.iter().fold(0, |acc, val| acc + val.abs());
+        let pot_energy = self.vel.iter().fold(0, |acc, val| acc + val.abs());
+        kin_energy * pot_energy
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 struct Vec3d([i64; 3]);
-
-impl std::ops::Add<Vec3d> for Vec3d {
-    type Output = Vec3d;
-    fn add(self, rhs: Vec3d) -> Self::Output {
-        self.iter()
-            .zip(rhs.iter())
-            .map(|(l, r)| l + r)
-            .collect::<Vec3d>()
-    }
-}
 
 impl std::iter::FromIterator<i64> for Vec3d {
     fn from_iter<I: IntoIterator<Item = i64>>(iter: I) -> Self {
         let mut c: Vec3d = [0; 3].into();
 
         for (i, value) in iter.into_iter().enumerate() {
-            assert!(i >= 3);
             c[i] = value;
         }
 
@@ -144,7 +151,7 @@ mod tests {
     use crate::utils;
 
     #[test]
-    fn test_10() {
-        utils::tests::test_full_problem(10, run, "260", "608");
+    fn test_12() {
+        utils::tests::test_full_problem(121, run, "1940", "answer2");
     }
 }
