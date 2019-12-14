@@ -8,8 +8,8 @@ where
 {
     let mut system = parse_input(reader)?;
 
-    system.wait(100);
-    // println!("{:?}", system);
+    system.wait(1000);
+    println!("{:?}", system);
     // for _ in 0..5 {
     //     println!("{:?}", system);
     //     system.time_step();
@@ -54,17 +54,16 @@ impl PlanetSystem {
     }
 
     fn apply_gravity(&mut self) {
-        for i in 1..self.planets.len() {
-            for j in 0..i - 1 {
+        let size = self.planets.len();
+        for i in 0..size {
+            for j in 0..size {
                 for k in 0..self.planets[i].pos.len() {
                     match self.planets[i].pos[k].cmp(&self.planets[j].pos[k]) {
                         std::cmp::Ordering::Greater => {
                             self.planets[i].vel[k] += -1;
-                            self.planets[j].vel[k] += 1;
                         }
                         std::cmp::Ordering::Less => {
                             self.planets[i].vel[k] += 1;
-                            self.planets[j].vel[k] += -1;
                         }
                         std::cmp::Ordering::Equal => {}
                     }
