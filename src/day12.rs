@@ -55,15 +55,17 @@ impl PlanetSystem {
 
     fn apply_gravity(&mut self) {
         let size = self.planets.len();
-        for i in 0..size {
-            for j in 0..size {
+        for i in 0..size - 1 {
+            for j in i + 1..size {
                 for k in 0..self.planets[i].pos.len() {
                     match self.planets[i].pos[k].cmp(&self.planets[j].pos[k]) {
                         std::cmp::Ordering::Greater => {
                             self.planets[i].vel[k] += -1;
+                            self.planets[j].vel[k] += 1;
                         }
                         std::cmp::Ordering::Less => {
                             self.planets[i].vel[k] += 1;
+                            self.planets[j].vel[k] += -1;
                         }
                         std::cmp::Ordering::Equal => {}
                     }
