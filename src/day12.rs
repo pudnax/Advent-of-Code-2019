@@ -54,7 +54,7 @@ impl PlanetSystem {
         let size = self.planets.len();
         for i in 0..size - 1 {
             for j in i + 1..size {
-                for k in 0..self.planets[i].pos.len() {
+                for k in 0..3 {
                     match self.planets[i].pos[k].cmp(&self.planets[j].pos[k]) {
                         std::cmp::Ordering::Greater => {
                             self.planets[i].vel[k] += -1;

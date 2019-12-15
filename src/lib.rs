@@ -14,6 +14,7 @@ pub mod day08_v2;
 pub mod day09;
 pub mod day10;
 pub mod day12;
+pub mod day14;
 mod utils;
 
 pub use self::error::Error;
