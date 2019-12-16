@@ -1,22 +1,52 @@
-use std::io;
-
 use crate::error::Error;
+use std::fmt::Write;
+use std::io;
 
 pub fn run<R>(reader: R) -> Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let signal = parse_input(reader)?;
-    println!("{:?}", signal);
+    let mut signal = parse_input(reader)?;
 
-    let mut fft = FFT::new(&[0, 1, 0, -1]);
-    fft.step();
-    fft.step();
-    let cycled = signal.iter().zip(fft.into_iter().cycle());
-    println!("{:?}", cycled.collect::<Vec<_>>());
-    Ok(("answer1".to_string(), "answer2".to_string()))
+    let prossesed_signal = part1(&mut signal);
+
+    let answer1 = join(&prossesed_signal[0..8]);
+    Ok((answer1.to_string(), "answer2".to_string()))
 }
 
+fn join(a: &[i64]) -> String {
+    a.iter().fold(String::new(), |mut s, &n| {
+        write!(s, "{}", n).ok();
+        s
+    })
+}
+
+fn part1(signal: &mut [i64]) -> &[i64] {
+    let mut fft = FFT::new(&[0, 1, 0, -1]);
+    let mut buff = vec![0i64; signal.len()];
+
+    for _ in 0..100 {
+        for elem in &mut buff {
+            *elem = signal
+                .iter()
+                .zip({
+                    let mut iter = fft.into_iter().cycle();
+                    iter.next();
+                    iter
+                })
+                .fold(0, |acc, (s, wave)| acc + s * wave)
+                .abs()
+                % 10;
+            fft.step();
+        }
+        signal.clone_from_slice(&buff[..]);
+        fft.flush();
+    }
+
+    signal
+}
+
+#[derive(Clone, Copy)]
 struct FFT<'a> {
     pattern: &'a [i64],
     phase: usize,
@@ -30,33 +60,32 @@ impl<'a> FFT<'a> {
     fn step(&mut self) {
         self.phase += 1;
     }
+
+    fn flush(&mut self) {
+        self.phase = 1;
+    }
 }
 
 impl<'a> IntoIterator for FFT<'a> {
     type Item = i64;
     type IntoIter = std::vec::IntoIter<Self::Item>;
     fn into_iter(self) -> Self::IntoIter {
-        let mut iter = self
-            .pattern
+        self.pattern
             .iter()
             .flat_map(|x| vec![*x; self.phase])
             .collect::<Vec<_>>()
-            .into_iter();
-        iter.next();
-        iter
+            .into_iter()
     }
 }
 
-fn parse_input<R>(mut reader: R) -> Result<Vec<u8>, Error>
+fn parse_input<R>(mut reader: R) -> Result<Vec<i64>, Error>
 where
     R: io::BufRead,
 {
     let mut buff = Vec::new();
     reader.read_to_end(&mut buff)?;
     buff.pop();
-    buff.iter_mut().for_each(|b| *b -= 48);
-
-    Ok(buff)
+    Ok(buff.iter().map(|b| (*b - 48) as i64).collect())
 }
 
 #[cfg(test)]
