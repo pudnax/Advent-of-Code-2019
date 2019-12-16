@@ -30,7 +30,7 @@ fn part1(signal: &mut [i64]) -> &[i64] {
             *elem = signal
                 .iter()
                 .zip({
-                    let mut iter = fft.into_iter().cycle();
+                    let mut iter = fft;
                     iter.next();
                     iter
                 })
@@ -50,11 +50,18 @@ fn part1(signal: &mut [i64]) -> &[i64] {
 struct FFT<'a> {
     pattern: &'a [i64],
     phase: usize,
+    pattern_size: usize,
+    counter: usize,
 }
 
 impl<'a> FFT<'a> {
     fn new(pattern: &[i64]) -> FFT {
-        FFT { pattern, phase: 1 }
+        FFT {
+            pattern,
+            phase: 1,
+            pattern_size: pattern.len(),
+            counter: 0,
+        }
     }
 
     fn step(&mut self) {
@@ -63,18 +70,16 @@ impl<'a> FFT<'a> {
 
     fn flush(&mut self) {
         self.phase = 1;
+        self.counter = 0;
     }
 }
 
-impl<'a> IntoIterator for FFT<'a> {
+impl<'a> Iterator for FFT<'a> {
     type Item = i64;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-    fn into_iter(self) -> Self::IntoIter {
-        self.pattern
-            .iter()
-            .flat_map(|x| vec![*x; self.phase])
-            .collect::<Vec<_>>()
-            .into_iter()
+    fn next(&mut self) -> Option<Self::Item> {
+        let res = Some(self.pattern[self.counter / self.phase % self.pattern_size]);
+        self.counter += 1;
+        res
     }
 }
 
