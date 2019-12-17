@@ -46,7 +46,7 @@ fn part1(signal: &mut [i64]) -> &[i64] {
     signal
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 struct FFT<'a> {
     pattern: &'a [i64],
     phase: usize,
