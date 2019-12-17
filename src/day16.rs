@@ -11,7 +11,7 @@ where
     let prossesed_signal = part1(&mut signal);
 
     let answer1 = join(&prossesed_signal[0..8]);
-    Ok((answer1.to_string(), "answer2".to_string()))
+    Ok((answer1, "answer2".to_string()))
 }
 
 fn join(a: &[i64]) -> String {
@@ -46,12 +46,21 @@ fn part1(signal: &mut [i64]) -> &[i64] {
     signal
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 struct FFT<'a> {
     pattern: &'a [i64],
     phase: usize,
     pattern_size: usize,
     counter: usize,
+}
+
+impl<'a> Iterator for FFT<'a> {
+    type Item = i64;
+    fn next(&mut self) -> Option<Self::Item> {
+        let res = self.pattern[self.counter / self.phase % self.pattern_size];
+        self.counter += 1;
+        Some(res)
+    }
 }
 
 impl<'a> FFT<'a> {
@@ -70,16 +79,6 @@ impl<'a> FFT<'a> {
 
     fn flush(&mut self) {
         self.phase = 1;
-        self.counter = 0;
-    }
-}
-
-impl<'a> Iterator for FFT<'a> {
-    type Item = i64;
-    fn next(&mut self) -> Option<Self::Item> {
-        let res = Some(self.pattern[self.counter / self.phase % self.pattern_size]);
-        self.counter += 1;
-        res
     }
 }
 
