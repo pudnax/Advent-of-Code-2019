@@ -48,7 +48,7 @@ fn run() -> Result<(), Error> {
     let (answer1, answer2) = match opt.day {
         1 => aoc2019::day01::run(input)?,
         2 => aoc2019::day02::run(input)?,
-        3 => aoc2019::day03::run(input)?,
+        3 => aoc2019::day03_v2::run(input)?,
         4 => aoc2019::day04::run(input)?,
         5 => aoc2019::day05::run(input)?,
         6 => aoc2019::day06::run(input)?,
@@ -57,7 +57,7 @@ fn run() -> Result<(), Error> {
         9 => aoc2019::day09::run(input)?,
         10 => aoc2019::day10::run(input)?,
         11 => aoc2019::day11::run(input)?,
-        12 => aoc2019::day12::run(input)?,
+        12 => aoc2019::day12_v2::run(input)?,
         14 => aoc2019::day14::run(input)?,
         16 => aoc2019::day16::run(input)?,
         n if n > 0 && n < 26 => bail!("Day {} is not yet implemented.", n),
