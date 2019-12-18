@@ -168,7 +168,7 @@ fn target_16(c: &mut Criterion) {
 criterion_group! {
     name = group;
     config = Criterion::default().warm_up_time(Duration::from_secs(5));
-    targets = target_01, target_02, target_03, target_04, target_05, target_06, target_07, target_08, target_08_v2, target_09, target_10, target_11, target_12, target_12_v2,target_14, target_16
+    targets = target_01, target_02, target_03, target_04, target_05, target_06, target_07, target_08, target_08_v2, target_09, target_10, target_11, target_12, target_12_v2, target_14, target_16
 }
 
 criterion_main!(group);
