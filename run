@@ -2,13 +2,13 @@
 
 set -ex
 
-CARGO_TARGET_DIR="/tmp/foo"
+# CARGO_TARGET_DIR="/tmp/foo"
 RUSTFLAGS=""
 "$@"
 
 has_avx2=$(lscpu | awk -F ":" 'END{print $2 ~ /avx2/}')
 if [ "$has_avx2" -eq "1" ]; then
-    CARGO_TARGET_DIR="/tmp/bar"
+    # CARGO_TARGET_DIR="/tmp/bar"
     RUSTFLAGS="-C target-cpu=native"
     "$@"
 fi
