@@ -56,6 +56,7 @@ fn run() -> Result<(), Error> {
         8 => aoc2019::day08_v2::run(input)?,
         9 => aoc2019::day09::run(input)?,
         10 => aoc2019::day10::run(input)?,
+        11 => aoc2019::day11::run(input)?,
         12 => aoc2019::day12::run(input)?,
         14 => aoc2019::day14::run(input)?,
         16 => aoc2019::day16::run(input)?,
