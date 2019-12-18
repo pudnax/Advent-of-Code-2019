@@ -135,6 +135,16 @@ fn target_12(c: &mut Criterion) {
     });
 }
 
+fn target_12_v2(c: &mut Criterion) {
+    let data = fs::read_to_string("data/day12").unwrap();
+    c.bench_function("day_12_v2", |b| {
+        b.iter(|| {
+            let reader = io::BufReader::new(data.as_bytes());
+            aoc2019::day12_v2::run(reader).unwrap();
+        })
+    });
+}
+
 fn target_14(c: &mut Criterion) {
     let data = fs::read_to_string("data/day14").unwrap();
     c.bench_function("day_14", |b| {
@@ -158,7 +168,7 @@ fn target_16(c: &mut Criterion) {
 criterion_group! {
     name = group;
     config = Criterion::default().warm_up_time(Duration::from_secs(5));
-    targets = target_01, target_02, target_03, target_04, target_05, target_06, target_07, target_08, target_08_v2, target_09, target_10, target_11, target_12, target_14, target_16
+    targets = target_01, target_02, target_03, target_04, target_05, target_06, target_07, target_08, target_08_v2, target_09, target_10, target_11, target_12, target_12_v2,target_14, target_16
 }
 
 criterion_main!(group);

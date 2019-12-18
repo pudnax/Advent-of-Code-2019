@@ -9,7 +9,6 @@ where
     let mut system = parse_input(reader)?;
 
     system.wait(1000);
-    println!("{:?}", system);
 
     let answer1 = system.energy();
     Ok((answer1.to_string(), "answer2".to_string()))
