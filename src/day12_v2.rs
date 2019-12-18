@@ -7,9 +7,12 @@ pub fn run<R>(reader: R) -> std::result::Result<(String, String), Error>
 where
     R: io::BufRead,
 {
-    let moons = parse_input(reader)?;
-    println!("{:?}", moons);
-    Ok(("answer1".to_string(), "answer2".to_string()))
+    let mut moons = parse_input(reader)?;
+    for _ in 0..100 {
+        moons.step();
+    }
+    let answer1 = moons.energy();
+    Ok((answer1.to_string(), "answer2".to_string()))
 }
 
 fn parse_input<R>(reader: R) -> Result<Moons, Error>
@@ -61,6 +64,21 @@ where
 struct Moons([RefCell<Moon>; 4]);
 
 impl Moons {
+    fn energy(&self) -> u64 {
+        let mut total = 0;
+        for moon in self.iter() {
+            let moon = moon.borrow();
+            let mut pot_energy = 0;
+            let mut kin_energy = 0;
+            for k in 0..3 {
+                pot_energy += moon.pos[k].abs() as u64;
+                kin_energy += moon.vel[k].abs() as u64;
+            }
+            total += pot_energy * kin_energy;
+        }
+        total
+    }
+
     fn step(&mut self) {
         for moon_i in &self.0 {
             for moon_j in &self.0 {
@@ -80,7 +98,7 @@ impl Moons {
         }
         for moon in self.iter_mut() {
             for k in 0..3 {
-                let vel = { moon.borrow().vel()[k] };
+                let vel = moon.borrow().vel()[k];
                 moon.borrow_mut().pos_mut()[k] += vel;
             }
         }
