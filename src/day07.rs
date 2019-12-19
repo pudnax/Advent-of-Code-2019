@@ -47,11 +47,7 @@ where
             let tx_output = tx_output.clone();
 
             let handle = s.spawn(move |_| {
-                loop {
-                    let (part, phase_setting, input, output) = match rx_input.recv() {
-                        Ok(data) => data,
-                        Err(_) => break,
-                    };
+                while let Ok((part, phase_setting, input, output)) = rx_input.recv() {
                     let mut computer = Computer::with_io(input, output);
 
                     computer.input_mut().push_back(phase_setting);
@@ -96,8 +92,7 @@ where
 
         let (mut answer1, mut answer2) = (0, 0);
 
-        let mut iter = rx_output.iter();
-        while let Some((part, output)) = iter.next() {
+        for (part, output) in rx_output.iter() {
             match part {
                 0 => {
                     if output > answer1 {
