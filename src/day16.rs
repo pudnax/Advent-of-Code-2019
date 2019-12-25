@@ -29,11 +29,7 @@ fn part1(signal: &mut [i64]) -> &[i64] {
         for elem in &mut buff {
             *elem = signal
                 .iter()
-                .zip({
-                    let mut iter = fft;
-                    iter.next();
-                    iter
-                })
+                .zip(fft)
                 .fold(0, |acc, (s, wave)| acc + s * wave)
                 .abs()
                 % 10;
@@ -69,7 +65,7 @@ impl<'a> FFT<'a> {
             pattern,
             phase: 1,
             pattern_size: pattern.len(),
-            counter: 0,
+            counter: 1,
         }
     }
 
@@ -99,7 +95,7 @@ mod tests {
     use crate::utils;
 
     #[test]
-    fn test_14() {
-        utils::tests::test_full_problem(9, run, "3460311188", "42202");
+    fn test_16() {
+        utils::tests::test_full_problem(16, run, "76795888", "answer2");
     }
 }
