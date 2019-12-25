@@ -32,29 +32,6 @@ mod tests {
 
     #[test]
     fn test_09() {
-        let test_cases = &[
-            (
-                "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99",
-                &[
-                    109i64, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
-                ][..],
-            ),
-            (
-                "1102,34915192,34915192,7,4,7,99,0",
-                &[34_915_192, 3_491_519_292][..],
-            ),
-            ("104,1125899906842624,99", &[1_125_899_906_842_624][..]),
-        ];
-
-        for (input, expected) in test_cases {
-            let reader = io::BufReader::new(input.as_bytes());
-            let rom = Rom::from_reader(reader).unwrap();
-            let mut computer = Computer::default();
-            computer.execute(&rom, None).unwrap();
-            let actual = computer.output_mut().try_iter().collect::<Vec<_>>();
-            assert_eq!(*expected, &actual[..]);
-        }
-
-        utils::tests::test_full_problem(9, run, "3460311188", "42202");
+        utils::tests::test_full_problem(9, run, "3839402290", "35734");
     }
 }

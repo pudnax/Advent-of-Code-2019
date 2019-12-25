@@ -182,6 +182,6 @@ mod tests {
 
     #[test]
     fn test_12() {
-        utils::tests::test_full_problem(121, run, "14645", "answer2");
+        utils::tests::test_full_problem(12, run, "7687", "answer2");
     }
 }

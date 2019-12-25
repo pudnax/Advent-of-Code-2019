@@ -205,6 +205,6 @@ mod tests {
 
     #[test]
     fn test_10() {
-        utils::tests::test_full_problem(10, run, "260", "608");
+        utils::tests::test_full_problem(10, run, "344", "2732");
     }
 }

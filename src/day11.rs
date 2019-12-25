@@ -225,11 +225,11 @@ mod tests {
 
     #[test]
     fn test_11() {
-        let file = fs::File::open("data/11.txt").unwrap();
+        let file = fs::File::open("data/day11").unwrap();
         let reader = io::BufReader::new(file);
         let rom = Rom::from_reader(reader).unwrap();
         let robot = Robot::run(&rom, Color::Black).unwrap();
         let actual = robot.grid.keys().count();
-        assert_eq!(actual, 2293);
+        assert_eq!(actual, 1907);
     }
 }

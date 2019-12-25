@@ -206,6 +206,6 @@ mod tests {
             assert_eq!(dist, 6);
         }
 
-        utils::tests::test_full_problem(6, run, "241064", "418");
+        utils::tests::test_full_problem(6, run, "162439", "367");
     }
 }

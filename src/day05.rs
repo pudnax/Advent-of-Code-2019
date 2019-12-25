@@ -43,6 +43,6 @@ mod tests {
 
     #[test]
     fn test_05() {
-        utils::tests::test_full_problem(5, run, "2845163", "9436229");
+        utils::tests::test_full_problem(5, run, "7259358", "11826654");
     }
 }

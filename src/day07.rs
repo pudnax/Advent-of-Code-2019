@@ -127,6 +127,6 @@ mod tests {
 
     #[test]
     fn test_07() {
-        utils::tests::test_full_problem(7, run, "43812", "59597414");
+        utils::tests::test_full_problem(7, run, "255840", "84088865");
     }
 }

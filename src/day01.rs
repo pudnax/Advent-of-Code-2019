@@ -68,6 +68,6 @@ mod tests {
             assert_eq!(*expected2, actual2);
         }
 
-        utils::tests::test_full_problem(1, run, "3271095", "4903759");
+        utils::tests::test_full_problem(1, run, "3267638", "4898585");
     }
 }
